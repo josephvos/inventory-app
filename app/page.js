@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, Stack, Typography, Button, Modal, TextField } from '@mui/material';
+import { Box, Stack, Typography, Button, Modal, TextField, useMediaQuery, useTheme } from '@mui/material';
 import { firestore, auth } from './firebase';
 import { collection, doc, query, getDocs, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
@@ -11,7 +11,8 @@ const modalStyle = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: '90%', // Responsive width
+  maxWidth: 500, // Maximum width for larger screens
   bgcolor: '#f5f5f5',
   border: '2px solid #8B4513', // Brown border
   boxShadow: 24,
@@ -22,11 +23,15 @@ const modalStyle = {
 };
 
 const listContainerStyle = {
-  maxHeight: '500px', // Adjust as needed
+  maxHeight: '400px', // Adjusted for responsiveness
   overflowY: 'auto',
 };
 
 export default function Home() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
+
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -148,7 +153,7 @@ export default function Home() {
       p={2}
     >
       {!user ? (
-        <Box width="100%" maxWidth="400px">
+        <Box width="100%" maxWidth={isMobile ? '90%' : '400px'}>
           <TextField
             label="Email"
             variant="outlined"
@@ -166,7 +171,7 @@ export default function Home() {
             margin="normal"
             fullWidth
           />
-          <Box mt={2} display="flex" justifyContent="center" gap={2}>
+          <Box mt={2} display="flex" flexDirection={isMobile ? 'column' : 'row'} gap={2}>
             <Button variant="contained" color="success" onClick={handleSignUp} disabled={loading}>
               Sign Up
             </Button>
@@ -177,7 +182,7 @@ export default function Home() {
           {error && <Typography color="error" align="center" mt={2}>{error}</Typography>}
         </Box>
       ) : (
-        <Box width="100%" maxWidth="800px">
+        <Box width="100%" maxWidth={isMobile ? '90%' : '800px'}>
           <Box display="flex" justifyContent="flex-end" mb={2}>
             <Button variant="contained" color="success" onClick={handleSignOut} disabled={loading}>
               Sign Out
@@ -193,7 +198,7 @@ export default function Home() {
               <Typography id="modal-modal-title" variant="h6" component="h2">
                 Add Item
               </Typography>
-              <Stack width="100%" direction={'row'} spacing={2}>
+              <Stack width="100%" direction={isMobile ? 'column' : 'row'} spacing={2}>
                 <TextField
                   id="outlined-basic"
                   label="Item"
@@ -236,7 +241,7 @@ export default function Home() {
               <Typography id="modal-remove-title" variant="h6" component="h2">
                 Remove Quantity
               </Typography>
-              <Stack width="100%" direction={'row'} spacing={2}>
+              <Stack width="100%" direction={isMobile ? 'column' : 'row'} spacing={2}>
                 <TextField
                   id="outlined-remove-quantity"
                   label="Quantity"
@@ -270,6 +275,7 @@ export default function Home() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               margin="normal"
+              fullWidth={isMobile}
             />
           </Box>
           <Box
@@ -280,14 +286,14 @@ export default function Home() {
           >
             <Box
               width="100%"
-              height="100px"
+              height={isMobile ? '70px' : '100px'} // Adjust height for mobile
               bgcolor="#8B4513" // Dark brown background
               display="flex"
               justifyContent="center"
               alignItems="center"
               mb={2}
             >
-              <Typography variant={'h2'} color={'#fff'} textAlign={'center'}>
+              <Typography variant={isMobile ? 'h4' : 'h2'} color={'#fff'} textAlign={'center'}>
                 Inventory Items
               </Typography>
             </Box>
@@ -299,32 +305,35 @@ export default function Home() {
               {filteredPantry.map(({ name, count }) => (
                 <Stack
                   key={name}
-                  direction="row"
+                  direction={isMobile ? 'column' : 'row'}
                   spacing={2}
                   justifyContent={'center'}
                   alignItems={'center'}
                 >
                   <Box
                     width="100%"
-                    minHeight="150px"
+                    minHeight={isMobile ? '120px' : '150px'} // Adjust height for mobile
                     display="flex"
+                    flexDirection={isMobile ? 'column' : 'row'}
                     justifyContent="space-between"
                     alignItems="center"
                     bgcolor="#f5f5f5" // Light grey background
-                    paddingX={5}
+                    paddingX={2}
                     border={'1px solid #8B4513'} // Brown border
                   >
                     <Typography
-                      variant={'h4'}
+                      variant={isMobile ? 'h6' : 'h4'}
                       color={'#333'}
                       textAlign={'center'}
+                      sx={{ mb: 1 }}
                     >
                       {name.charAt(0).toUpperCase() + name.slice(1)}
                     </Typography>
                     <Typography
-                      variant={'h4'}
+                      variant={isMobile ? 'body2' : 'h6'}
                       color={'#333'}
                       textAlign={'center'}
+                      sx={{ mb: 1 }}
                     >
                       Quantity: {count}
                     </Typography>
