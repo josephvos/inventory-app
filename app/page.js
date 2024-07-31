@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Stack, Typography, Button, Modal, TextField } from '@mui/material';
-import { firestore, auth } from './firebase'; // Adjust the path if necessary
+import { firestore, auth } from './firebase'; // Ensure this path is correct
 import { collection, doc, query, getDocs, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
@@ -18,7 +18,7 @@ const style = {
   p: 4,
   display: 'flex',
   flexDirection: 'column',
-  gap: 3, 
+  gap: 3,
 };
 
 export default function Home() {
@@ -27,6 +27,8 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const [pantry, setPantry] = useState([]);
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [itemName, setItemName] = useState('');
@@ -61,7 +63,7 @@ export default function Home() {
     if (docSnap.exists()) {
       const { count } = docSnap.data();
       await setDoc(docRef, { count: count + 1 });
-    } else { 
+    } else {
       await setDoc(docRef, { count: 1 });
     }
     await updatePantry(userId);
@@ -83,26 +85,47 @@ export default function Home() {
   };
 
   const handleSignUp = async () => {
+    setLoading(true);
+    setError(null);
     try {
+      console.log('Attempting to sign up...');
       await createUserWithEmailAndPassword(auth, email, password);
+      console.log('Sign up successful');
     } catch (error) {
       console.error('Error signing up:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSignIn = async () => {
+    setLoading(true);
+    setError(null);
     try {
+      console.log('Attempting to sign in...');
       await signInWithEmailAndPassword(auth, email, password);
+      console.log('Sign in successful');
     } catch (error) {
       console.error('Error signing in:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleSignOut = async () => {
+    setLoading(true);
+    setError(null);
     try {
+      console.log('Attempting to sign out...');
       await signOut(auth);
+      console.log('Sign out successful');
     } catch (error) {
       console.error('Error signing out:', error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -111,38 +134,45 @@ export default function Home() {
   );
 
   return (
-    <Box 
-      width="100vw" 
+    <Box
+      width="100vw"
       height="100vh"
       display="flex"
       justifyContent="center"
       alignItems="center"
       flexDirection={'column'}
       gap={2}
-    > 
+    >
       {!user ? (
         <Box>
-          <TextField 
-            label="Email" 
-            variant="outlined" 
+          <TextField
+            label="Email"
+            variant="outlined"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
           />
-          <TextField 
-            label="Password" 
-            variant="outlined" 
+          <TextField
+            label="Password"
+            variant="outlined"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
           />
-          <Button variant="contained" onClick={handleSignUp}>Sign Up</Button>
-          <Button variant="contained" onClick={handleSignIn}>Sign In</Button>
+          <Button variant="contained" onClick={handleSignUp} disabled={loading}>
+            Sign Up
+          </Button>
+          <Button variant="contained" onClick={handleSignIn} disabled={loading}>
+            Sign In
+          </Button>
+          {error && <Typography color="error">{error}</Typography>}
         </Box>
       ) : (
         <Box>
-          <Button variant="contained" onClick={handleSignOut}>Sign Out</Button>
+          <Button variant="contained" onClick={handleSignOut} disabled={loading}>
+            Sign Out
+          </Button>
           <Modal
             open={open}
             onClose={handleClose}
@@ -154,15 +184,15 @@ export default function Home() {
                 Add Item
               </Typography>
               <Stack width="100%" direction={'row'} spacing={2}>
-                <TextField 
-                  id="outlined-basic" 
-                  label="Item" 
-                  variant="outlined" 
+                <TextField
+                  id="outlined-basic"
+                  label="Item"
+                  variant="outlined"
                   fullWidth
                   value={itemName}
                   onChange={(e) => setItemName(e.target.value)}
                 />
-                <Button 
+                <Button
                   variant="outlined"
                   onClick={() => {
                     addItem(itemName);
@@ -175,7 +205,7 @@ export default function Home() {
               </Stack>
             </Box>
           </Modal>
-          
+
           <Stack direction="row" spacing={2} alignItems="center">
             <Button variant="contained" onClick={handleOpen}>
               Add
@@ -190,7 +220,7 @@ export default function Home() {
           </Stack>
 
           <Box border={'1px solid #333'}>
-            <Box 
+            <Box
               width="800px"
               height="100px"
               bgcolor="#ADD8E6"
@@ -202,21 +232,22 @@ export default function Home() {
                 Pantry Items
               </Typography>
             </Box>
-            <Stack 
+            <Stack
               width="800px"
               height="500px"
               spacing={2}
               overflow={'auto'}
             >
               {filteredPantry.map(({ name, count }) => (
-                <Stack 
-                  key={name} 
-                  direction='row' 
-                  spacing={2} 
-                  justifyContent={'center'} 
+                <Stack
+                  key={name}
+                  direction='row'
+                  spacing={2}
+                  justifyContent={'center'}
                   alignContent={'space-between'}
                 >
-                  <Box  
+                  <Box
+                    key={name}
                     width="100%"
                     minHeight="150px"
                     display="flex"
@@ -225,21 +256,21 @@ export default function Home() {
                     bgcolor="#f0f0f0"
                     paddingX={5}
                   >
-                    <Typography  
+                    <Typography
                       variant={'h3'}
                       color={'#333'}
                       textAlign={'center'}
                     >
                       {name.charAt(0).toUpperCase() + name.slice(1)}
                     </Typography>
-                    <Typography  
+                    <Typography
                       variant={'h3'}
                       color={'#333'}
                       textAlign={'center'}
                     >
-                      Quantity: {count} 
+                      Quantity: {count}
                     </Typography>
-                    <Button variant="contained" onClick={() => removeItem(name)}> 
+                    <Button variant="contained" onClick={() => removeItem(name)}>
                       Remove
                     </Button>
                   </Box>
