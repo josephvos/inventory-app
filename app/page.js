@@ -153,7 +153,20 @@ export default function Home() {
       p={2}
     >
       {!user ? (
-        <Box width="100%" maxWidth={isMobile ? '90%' : '400px'}>
+        <Box width="100%" maxWidth={isMobile ? '90%' : '600px'}>
+          <Box
+            width="100%"
+            height={isMobile ? '70px' : '100px'} // Adjust height for mobile
+            bgcolor="#8B4513" // Dark brown background
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            mb={2}
+          >
+            <Typography variant={isMobile ? 'h4' : 'h2'} color={'#fff'} textAlign={'center'}>
+              Inventory Items
+            </Typography>
+          </Box>
           <TextField
             label="Email"
             variant="outlined"
@@ -171,15 +184,28 @@ export default function Home() {
             margin="normal"
             fullWidth
           />
-          <Box mt={2} display="flex" flexDirection={isMobile ? 'column' : 'row'} gap={2}>
-            <Button variant="contained" color="success" onClick={handleSignUp} disabled={loading}>
-              Sign Up
-            </Button>
-            <Button variant="contained" color="success" onClick={handleSignIn} disabled={loading}>
-              Sign In
-            </Button>
-          </Box>
-          {error && <Typography color="error" align="center" mt={2}>{error}</Typography>}
+         <Box mt={2} display="flex" flexDirection={isMobile ? 'column' : 'row'} gap={2} width="100%">
+  <Button
+    variant="contained"
+    color="success"
+    onClick={handleSignUp}
+    disabled={loading}
+    sx={{ flex: 1 }} // Stretch to fill the available space
+  >
+    Sign Up
+  </Button>
+  <Button
+    variant="contained"
+    color="success"
+    onClick={handleSignIn}
+    disabled={loading}
+    sx={{ flex: 1 }} // Stretch to fill the available space
+  >
+    Sign In
+  </Button>
+</Box>
+{error && <Typography color="error" align="center" mt={2}>{error}</Typography>}
+
         </Box>
       ) : (
         <Box width="100%" maxWidth={isMobile ? '90%' : '800px'}>
@@ -284,19 +310,6 @@ export default function Home() {
             borderRadius={2}
             p={2}
           >
-            <Box
-              width="100%"
-              height={isMobile ? '70px' : '100px'} // Adjust height for mobile
-              bgcolor="#8B4513" // Dark brown background
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              mb={2}
-            >
-              <Typography variant={isMobile ? 'h4' : 'h2'} color={'#fff'} textAlign={'center'}>
-                Inventory Items
-              </Typography>
-            </Box>
             <Stack
               width="100%"
               spacing={2}
