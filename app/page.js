@@ -154,19 +154,20 @@ export default function Home() {
     >
       {!user ? (
         <Box width="100%" maxWidth={isMobile ? '90%' : '600px'}>
-          <Box
-            width="100%"
-            height={isMobile ? '70px' : '100px'} // Adjust height for mobile
-            bgcolor="#8B4513" // Dark brown background
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            mb={2}
-          >
-            <Typography variant={isMobile ? 'h4' : 'h2'} color={'#fff'} textAlign={'center'}>
-              Inventory Items
-            </Typography>
-          </Box>
+         
+          <Typography
+  variant={isMobile ? 'h4' : 'h2'}
+  color={'#fff'}
+  textAlign={'center'}
+  sx={{ 
+    backgroundColor: '#8B4513', // Brown background
+    padding: 2, // Add some padding for better visibility
+    borderRadius: 1 // Optional: add rounded corners
+  }}
+>
+  Inventory App
+</Typography>
+         
           <TextField
             label="Email"
             variant="outlined"
@@ -253,9 +254,12 @@ export default function Home() {
                   }}
                 >
                   ADD
+                  
                 </Button>
+                
               </Stack>
             </Box>
+       
           </Modal>
           <Modal
             open={removeOpen}
@@ -292,6 +296,18 @@ export default function Home() {
             </Box>
           </Modal>
           <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+        <Typography
+  variant={isMobile ? 'h4' : 'h2'}
+  color={'#fff'}
+  textAlign={'center'}
+  sx={{ 
+    backgroundColor: '#8B4513', // Brown background
+    padding: 2, // Add some padding for better visibility
+    borderRadius: 1 // Optional: add rounded corners
+  }}
+>
+  Inventory App
+</Typography>
             <Button variant="contained" color="success" onClick={handleOpen}>
               Add
             </Button>
@@ -303,7 +319,9 @@ export default function Home() {
               margin="normal"
               fullWidth={isMobile}
             />
+           
           </Box>
+
           <Box
             border={'1px solid #8B4513'} // Brown border
             bgcolor="#f5f5f5" // Light grey background
