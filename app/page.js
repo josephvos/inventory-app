@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, Stack, Typography, Button, Modal, TextField } from '@mui/material';
-import { firestore, auth } from './firebase'; // Ensure this path is correct
+import { firestore, auth } from './firebase';
 import { collection, doc, query, getDocs, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
@@ -32,6 +32,7 @@ export default function Home() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
   const [itemName, setItemName] = useState('');
+  const [quantity, setQuantity] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -56,15 +57,15 @@ export default function Home() {
     setPantry(pantryList);
   };
 
-  const addItem = async (item) => {
+  const addItem = async (item, quantity) => {
     const userId = user.uid;
     const docRef = doc(collection(firestore, 'users', userId, 'pantry'), item);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const { count } = docSnap.data();
-      await setDoc(docRef, { count: count + 1 });
+      await setDoc(docRef, { count: count + quantity });
     } else {
-      await setDoc(docRef, { count: 1 });
+      await setDoc(docRef, { count: quantity });
     }
     await updatePantry(userId);
   };
@@ -192,11 +193,20 @@ export default function Home() {
                   value={itemName}
                   onChange={(e) => setItemName(e.target.value)}
                 />
+                <TextField
+                  id="outlined-quantity"
+                  label="Quantity"
+                  variant="outlined"
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                />
                 <Button
                   variant="outlined"
                   onClick={() => {
-                    addItem(itemName);
+                    addItem(itemName, parseInt(quantity));
                     setItemName('');
+                    setQuantity('');
                     handleClose();
                   }}
                 >
@@ -205,8 +215,7 @@ export default function Home() {
               </Stack>
             </Box>
           </Modal>
-
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
             <Button variant="contained" onClick={handleOpen}>
               Add
             </Button>
@@ -217,8 +226,7 @@ export default function Home() {
               onChange={(e) => setSearchQuery(e.target.value)}
               margin="normal"
             />
-          </Stack>
-
+          </Box>
           <Box border={'1px solid #333'}>
             <Box
               width="800px"
@@ -232,16 +240,11 @@ export default function Home() {
                 Pantry Items
               </Typography>
             </Box>
-            <Stack
-              width="800px"
-              height="500px"
-              spacing={2}
-              overflow={'auto'}
-            >
+            <Stack width="800px" height="500px" spacing={2} overflow={'auto'}>
               {filteredPantry.map(({ name, count }) => (
                 <Stack
                   key={name}
-                  direction='row'
+                  direction="row"
                   spacing={2}
                   justifyContent={'center'}
                   alignContent={'space-between'}
