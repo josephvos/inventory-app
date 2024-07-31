@@ -1,7 +1,8 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
-
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDxbpYSj18Oe-la8gNQCUU7FJKbyhj4Vjg",
   authDomain: "pantry-app-69391.firebaseapp.com",
@@ -12,8 +13,9 @@ const firebaseConfig = {
   measurementId: "G-914M8QCDJC"
 };
 
-
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const firestore = getFirestore(app);
+const auth = getAuth(app);
 
-export { app, firestore };
+export { app, firestore, auth };
