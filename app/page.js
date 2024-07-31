@@ -34,6 +34,9 @@ export default function Home() {
   const [itemName, setItemName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [removeOpen, setRemoveOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState('');
+  const [removeQuantity, setRemoveQuantity] = useState('');
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
@@ -70,16 +73,16 @@ export default function Home() {
     await updatePantry(userId);
   };
 
-  const removeItem = async (item) => {
+  const removeItem = async (item, quantity) => {
     const userId = user.uid;
     const docRef = doc(collection(firestore, 'users', userId, 'pantry'), item);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       const { count } = docSnap.data();
-      if (count === 1) {
+      if (count <= quantity) {
         await deleteDoc(docRef);
       } else {
-        await setDoc(docRef, { count: count - 1 });
+        await setDoc(docRef, { count: count - quantity });
       }
     }
     await updatePantry(userId);
@@ -89,11 +92,8 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      console.log('Attempting to sign up...');
       await createUserWithEmailAndPassword(auth, email, password);
-      console.log('Sign up successful');
     } catch (error) {
-      console.error('Error signing up:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -104,11 +104,8 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      console.log('Attempting to sign in...');
       await signInWithEmailAndPassword(auth, email, password);
-      console.log('Sign in successful');
     } catch (error) {
-      console.error('Error signing in:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -119,11 +116,8 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      console.log('Attempting to sign out...');
       await signOut(auth);
-      console.log('Sign out successful');
     } catch (error) {
-      console.error('Error signing out:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -145,7 +139,14 @@ export default function Home() {
       gap={2}
     >
       {!user ? (
-        <Box>
+        <Box
+        display="flex"
+        flexDirection="column"
+        justifyContent="space-between"
+        height="100vh" // Make sure the Box takes up the full height of its container
+        padding={2}
+      >
+        <div>
           <TextField
             label="Email"
             variant="outlined"
@@ -161,6 +162,8 @@ export default function Home() {
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
           />
+        </div>
+        <div>
           <Button variant="contained" onClick={handleSignUp} disabled={loading}>
             Sign Up
           </Button>
@@ -168,7 +171,8 @@ export default function Home() {
             Sign In
           </Button>
           {error && <Typography color="error">{error}</Typography>}
-        </Box>
+        </div>
+      </Box>
       ) : (
         <Box>
           <Button variant="contained" onClick={handleSignOut} disabled={loading}>
@@ -211,6 +215,38 @@ export default function Home() {
                   }}
                 >
                   ADD
+                </Button>
+              </Stack>
+            </Box>
+          </Modal>
+          <Modal
+            open={removeOpen}
+            onClose={() => setRemoveOpen(false)}
+            aria-labelledby="modal-remove-title"
+            aria-describedby="modal-remove-description"
+          >
+            <Box sx={style}>
+              <Typography id="modal-remove-title" variant="h6" component="h2">
+                Remove Quantity
+              </Typography>
+              <Stack width="100%" direction={'row'} spacing={2}>
+                <TextField
+                  id="outlined-remove-quantity"
+                  label="Quantity"
+                  variant="outlined"
+                  type="number"
+                  value={removeQuantity}
+                  onChange={(e) => setRemoveQuantity(e.target.value)}
+                />
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    removeItem(selectedItem, parseInt(removeQuantity));
+                    setRemoveQuantity('');
+                    setRemoveOpen(false);
+                  }}
+                >
+                  Remove
                 </Button>
               </Stack>
             </Box>
@@ -273,7 +309,13 @@ export default function Home() {
                     >
                       Quantity: {count}
                     </Typography>
-                    <Button variant="contained" onClick={() => removeItem(name)}>
+                    <Button
+                      variant="contained"
+                      onClick={() => {
+                        setSelectedItem(name);
+                        setRemoveOpen(true);
+                      }}
+                    >
                       Remove
                     </Button>
                   </Box>
@@ -286,3 +328,4 @@ export default function Home() {
     </Box>
   );
 }
+
